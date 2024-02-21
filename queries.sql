@@ -24,3 +24,29 @@ with incom as
     group by first_name,last_name
     order by incom desc
     limit 10
+
+
+/*Запрос показывает чья средняя выручка из продавцов ниже средней выручки всех продавцов*/
+   
+with average_income_vseh  as
+(
+ select 
+   avg(sal.quantity*pr.price) as average_income_vseh --ищем среднюю выручку за сделку всех продавцов
+  from sales sal
+    left join products pr
+      on sal.product_id=pr.product_id
+    left join employees emp 
+      on sal.sales_person_id=emp.employee_id
+)
+ select
+   emp.first_name||' '||emp.last_name as name
+   ,round(avg(sal.quantity*pr.price)) as average_income  
+  from sales sal
+    left join products pr
+      on sal.product_id=pr.product_id
+    left join employees emp 
+      on sal.sales_person_id=emp.employee_id
+    CROSS JOIN average_income_vseh 
+    group by first_name,last_name,average_income_vseh
+    having avg(sal.quantity*pr.price) < average_income_vseh
+    order by average_income
