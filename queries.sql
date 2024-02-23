@@ -70,7 +70,7 @@ select
    order by number_weekday,name
 
 
-/*Количество клиентов по возрастным группам*/
+/*Количество покупателей по возрастным группам*/
 with category_age as
 (
   select
@@ -90,3 +90,20 @@ with category_age as
       order by age_category
 
 
+/*Количество покупателей и выручки,которую они прнинесли по месяцам*/
+with incom as
+(
+  select
+     TO_CHAR(sale_date,'yyyy-mm') as date--преобразуем дату в нужный фомат
+     ,sal.customer_id
+     ,(sal.quantity*pr.price) as incom--считаем выручку за кажую покупку
+  from sales as sal
+    left join products pr
+      on sal.product_id=pr.product_id
+)
+   select 
+      date
+     ,count(distinct customer_id) as total_customers --количество уникальных покупателей
+     ,round(sum(incom)) as income--сумируем выручку
+   from incom
+   group by date
