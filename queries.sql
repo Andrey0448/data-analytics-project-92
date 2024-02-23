@@ -24,12 +24,10 @@ select
 with average_income_vseh  as
 (
  select 
-   avg(sal.quantity*pr.price) as average_income_vseh --ищем среднюю выручку за сделку всех продавцов
+    avg(sal.quantity*pr.price) as average_income_vseh --ищем среднюю выручку за сделку всех продавцов
   from sales sal
     left join products pr
       on sal.product_id=pr.product_id
-    left join employees emp 
-      on sal.sales_person_id=emp.employee_id
 )
  select
    emp.first_name||' '||emp.last_name as name
