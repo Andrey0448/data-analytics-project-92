@@ -107,3 +107,36 @@ with incom as
      ,round(sum(incom)) as income--сумируем выручку
    from incom
    group by date
+
+
+/*Находим покупателей,которые совершили первую покупку в период акции(акционные товары отпускали со стоимостью равной 0)*/
+with first_buy_promotion as
+  (select distinct
+     sal.customer_id
+    ,first_value(sale_date) over (partition by sal.customer_id order by sale_date) as sale_date
+  from sales sal
+    left join products pr
+      on sal.product_id=pr.product_id
+      where price='0')
+     
+ ,first_buy as
+  (select distinct
+     sal.customer_id
+    ,cus.first_name||' '||cus.last_name as customer 
+    ,first_value(sale_date) over (partition by sal.customer_id,sal.sales_person_id order by sale_date) as sale_date
+    ,emp.first_name||' '||emp.last_name as seller
+  from sales sal
+    left join customers  cus
+      on sal.customer_id=cus.customer_id
+    left join employees emp
+      on sal.sales_person_id=emp.employee_id)
+      
+   select
+     buy.customer
+    ,buy.sale_date
+    ,buy.seller
+   from first_buy buy
+     inner join first_buy_promotion buy_pr
+       on buy.customer_id=buy_pr.customer_id
+       and buy.sale_date=buy_pr.sale_date
+   order by buy.customer_id
