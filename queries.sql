@@ -69,3 +69,24 @@ select
    group by name,weekday,numer_weekday
    order by number_weekday,name
 
+
+/*Количество клиентов по возрастным группам*/
+with category_age as
+(
+  select
+     CASE WHEN age BETWEEN '16' AND '25' THEN '16-25'
+         WHEN age BETWEEN '26' AND '40' THEN '26-40'
+         WHEN age>'40' THEN '40+'
+     END AS age_category  --Создаём возрастные группы         
+    ,customer_id 
+   FROM customers
+ )
+   select 
+      age_category
+      ,count(customer_id) as count --считаем количество по каждой созданной возрастной группе
+      
+      from category_age
+      group by age_category
+      order by age_category
+
+
