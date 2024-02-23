@@ -113,17 +113,17 @@ with incom as
 with first_buy_promotion as
   (select distinct
      sal.customer_id
-    ,first_value(sale_date) over (partition by sal.customer_id order by sale_date) as sale_date
+    ,first_value(sale_date) over (partition by sal.customer_id order by sale_date) as sale_date--находим первую дату покупки когда товар стоил 0
   from sales sal
     left join products pr
       on sal.product_id=pr.product_id
-      where price='0')
+      where price='0'--условие на цену товара)
      
  ,first_buy as
   (select distinct
      sal.customer_id
     ,cus.first_name||' '||cus.last_name as customer 
-    ,first_value(sale_date) over (partition by sal.customer_id,sal.sales_person_id order by sale_date) as sale_date
+    ,first_value(sale_date) over (partition by sal.customer_id,sal.sales_person_id order by sale_date) as sale_date--находим первую покупку покупателя
     ,emp.first_name||' '||emp.last_name as seller
   from sales sal
     left join customers  cus
@@ -138,5 +138,5 @@ with first_buy_promotion as
    from first_buy buy
      inner join first_buy_promotion buy_pr
        on buy.customer_id=buy_pr.customer_id
-       and buy.sale_date=buy_pr.sale_date
+       and buy.sale_date=buy_pr.sale_date--сравниваем даты покупок
    order by buy.customer_id
