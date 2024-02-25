@@ -15,7 +15,7 @@ select
      left join employees emp   
         on sal.sales_person_id=emp.employee_id
    group by first_name,last_name
-   order by incom desc
+   order by income desc
     limit 10
 
 
