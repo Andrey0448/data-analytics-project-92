@@ -50,7 +50,7 @@ select
    emp.first_name||' '||emp.last_name as name
    ,to_char(sal.sale_date, 'day') as weekday   --приводим дату в формат названия дня недели
    ,to_char(sal.sale_date, 'id') as number_weekday  --приводим дату в формат порядкового номера дня недели
-   ,sum(sal.quantity*pr.price) as incom
+   ,sum(sal.quantity*pr.price) as income
   from sales sal
     left join products pr
       on sal.product_id=pr.product_id
@@ -62,9 +62,9 @@ select
   select 
      name
      ,weekday
-     ,FLOOR(sum(incom)) as incom 
+     ,FLOOR(sum(income)) as income
    from group_weekday
-   group by name,weekday,numer_weekday
+   group by name,weekday,number_weekday
    order by number_weekday,name
 
 
