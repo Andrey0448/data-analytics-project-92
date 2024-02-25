@@ -8,7 +8,7 @@ FROM customers
 select 
     emp.first_name||' '|| emp.last_name as name
    ,count(sal.sales_id) as operations
-   ,round(sum(sal.quantity*pr.price)) as incom
+   ,FLOOR(sum(sal.quantity*pr.price)) as income
    from sales as sal
      left join products pr
         on sal.product_id=pr.product_id
@@ -31,7 +31,7 @@ with average_income_vseh  as
 )
  select
    emp.first_name||' '||emp.last_name as name
-   ,round(avg(sal.quantity*pr.price)) as average_income  --средняя выручка каждого продавца
+   ,FLOOR(avg(sal.quantity*pr.price)) as average_income  --средняя выручка каждого продавца
   from sales sal
     left join products pr
       on sal.product_id=pr.product_id
@@ -62,7 +62,7 @@ select
   select 
      name
      ,weekday
-     ,round(sum(incom)) as incom 
+     ,FLOOR(sum(incom)) as incom 
    from group_weekday
    group by name,weekday,numer_weekday
    order by number_weekday,name
@@ -102,7 +102,7 @@ with incom as
    select 
       date
      ,count(distinct customer_id) as total_customers --количество уникальных покупателей
-     ,round(sum(incom)) as income--сумируем выручку
+     ,FLOOR(sum(incom)) as income--сумируем выручку
    from incom
    group by date
 
