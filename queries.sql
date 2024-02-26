@@ -89,7 +89,7 @@ with category_age as
 
 
 /*Количество покупателей и выручки,которую они прнинесли по месяцам*/
-with incom as
+with income as
 (
   select
      TO_CHAR(sale_date,'yyyy-mm') as date--преобразуем дату в нужный фомат
@@ -102,8 +102,8 @@ with incom as
    select 
       date
      ,count(distinct customer_id) as total_customers --количество уникальных покупателей
-     ,FLOOR(sum(incom)) as income--сумируем выручку
-   from incom
+     ,FLOOR(sum(income)) as income--сумируем выручку
+   from income
    group by date
 
 
