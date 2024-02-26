@@ -94,7 +94,7 @@ with incom as
   select
      TO_CHAR(sale_date,'yyyy-mm') as date--преобразуем дату в нужный фомат
      ,sal.customer_id
-     ,(sal.quantity*pr.price) as incom--считаем выручку за кажую покупку
+     ,(sal.quantity*pr.price) as income--считаем выручку за кажую покупку
   from sales as sal
     left join products pr
       on sal.product_id=pr.product_id
