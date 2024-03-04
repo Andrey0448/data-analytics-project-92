@@ -20,8 +20,8 @@ limit 10
 
 /*Запрос показывает чья средняя выручка из продавцов ниже средней выручки всех продавцов*/
    
-with average_income_vseh as (
-    select avg(sal.quantity * pr.price) as average_income_vseh
+with average_dep_income as (
+    select avg(sal.quantity * pr.price) as average_dep_income
     --ищем среднюю выручку за сделку всех продавцов
     from sales as sal
     left join products as pr
@@ -37,9 +37,9 @@ left join products as pr
     on sal.product_id = pr.product_id
 left join employees as emp
     on sal.sales_person_id = emp.employee_id
-cross join average_income_vseh
-group by first_name, last_name, average_income_vseh
-having avg(sal.quantity * pr.price) < average_income_vseh
+cross join average_dep_income
+group by first_name, last_name, average_dep_income
+having avg(sal.quantity * pr.price) <average_dep_income
 order by average_income
 
 
