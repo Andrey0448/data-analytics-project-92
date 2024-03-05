@@ -1,9 +1,9 @@
 /*считает общее количество покупателей из таблицы customers*/
-SELECT count(customer_id) AS customers_count
-FROM customers
+select count(customer_id) AS customers_count
+FROM customers;
 
 
-/*Запрос считает количество сделок и выручку каждого продавца,выберает 10 продавцов, у которых выручка наибольшая, и сортирует данные по убыванию выручки*/
+/*Запрос считает количество сделок и выручку каждого продавца*/
 select
     emp.first_name || ' ' || emp.last_name as name,
     count(sal.sales_id) as operations,
@@ -13,12 +13,12 @@ left join products as pr
     on sal.product_id = pr.product_id
 left join employees as emp
     on sal.sales_person_id = emp.employee_id
-group by first_name, last_name
+group by emp.first_name, emp.last_name
 order by income desc
-limit 10
+limit 10;
 
 
-/*Запрос показывает чья средняя выручка из продавцов ниже средней выручки всех продавцов*/
+/*Чья средняя выручка из продавцов ниже средней выручки всех продавцов*/
    
 with average_dep_income as (
     select avg(sal.quantity * pr.price) as average_dep_income
@@ -30,17 +30,17 @@ with average_dep_income as (
 
 select
     emp.first_name || ' ' || emp.last_name as name,
-    floor(avg(sal.quantity * pr.price)) as average_income 
+    floor(avg(sal.quantity * pr.price)) as average_income
     --средняя выручка каждого продавца
 from sales as sal
 left join products as pr
     on sal.product_id = pr.product_id
 left join employees as emp
     on sal.sales_person_id = emp.employee_id
-cross join average_dep_income
-group by first_name, last_name, average_dep_income
-having avg(sal.quantity * pr.price) <average_dep_income
-order by average_income
+cross join average_dep_income as dep
+group by emp.first_name, emp.last_name, dep.average_dep_income
+having avg(sal.quantity * pr.price) < dep.average_dep_income
+order by average_income;
 
 
    /*выручка каждого продавца по дням недели*/
@@ -57,7 +57,7 @@ with group_weekday as (
         on sal.product_id = pr.product_id
     left join employees as emp
         on sal.sales_person_id = emp.employee_id
-    group by emp.first_name, emp.last_name, sale_date
+    group by emp.first_name, emp.last_name, sal.sale_date
     order by to_char(sal.sale_date, 'ID'), name
 )
 
@@ -67,7 +67,7 @@ select
     floor(sum(income)) as income
 from group_weekday
 group by name, weekday, number_weekday
-order by number_weekday, name
+order by number_weekday, name;
 
 
 /*Количество покупателей по возрастным группам*/
@@ -89,15 +89,15 @@ select
 
 from category_age
 group by age_category
-order by age_category
+order by age_category;
 
 
 
-/*Количество покупателей и выручки,которую они прнинесли по месяцам*/
+/*Количество покупателей и выручки, по месяцам*/
 with income as (
     select
         sal.customer_id--преобразуем дату в нужный фомат
-        , TO_CHAR(sale_date, 'yyyy-mm') as date
+        , to_char(sal.sale_date, 'yyyy-mm') as date
         , (sal.quantity * pr.price) as income--считаем выручку за кажую покупку
     from sales as sal
     left join products as pr
@@ -107,25 +107,25 @@ with income as (
 select
     date
     --количество уникальных покупателей
-    , COUNT(distinct customer_id) as total_customers
-    , FLOOR(SUM(income)) as income--сумируем выручку
+    , count(distinct customer_id) as total_customers
+    , floor(sum(income)) as income--сумируем выручку
 from income
-group by date
+group by date;
 
 
 
-/*Находим покупателей,которые совершили первую покупку в период акции(акционные товары отпускали со стоимостью равной 0)*/
+/*покупатели,совершившие первую покупку в период акции*/
 with first_buy_promotion as (
     select distinct
         sal.customer_id,
         --находим первую дату покупки когда товар стоил 0
-        first_value(sale_date)
-            over (partition by sal.customer_id order by sale_date)
+        first_value(sal.sale_date)
+            over (partition by sal.customer_id order by sal.sale_date)
         as sale_date
     from sales as sal
     left join products as pr
         on sal.product_id = pr.product_id
-    where price = '0'--условие на цену товара
+    where pr.price = '0'--условие на цену товара
 ),
 
 first_buy as (
@@ -133,10 +133,10 @@ first_buy as (
         sal.customer_id,
         cus.first_name || ' ' || cus.last_name as customer,
         --находим первую покупку покупателя
-        first_value(sale_date)
+        first_value(sal.sale_date)
             over (
                 partition by sal.customer_id, sal.sales_person_id
-                order by sale_date
+                order by sal.sale_date
             )
         as sale_date,
         emp.first_name || ' ' || emp.last_name as seller
@@ -156,4 +156,4 @@ inner join first_buy_promotion as buy_pr
     on
         buy.customer_id = buy_pr.customer_id
         and buy.sale_date = buy_pr.sale_date--сравниваем даты покупок
-order by buy.customer_id
+order by buy.customer_id;
