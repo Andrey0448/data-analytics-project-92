@@ -29,7 +29,7 @@ with average_dep_income as (
 )
 
 select
-    emp.first_name || ' ' || emp.last_name as name,
+    emp.first_name || ' ' || emp.last_name as seller,
     floor(avg(sal.quantity * pr.price)) as average_income
     --средняя выручка каждого продавца
 from sales as sal
