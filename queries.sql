@@ -5,7 +5,7 @@ FROM customers;
 
 /*Запрос считает количество сделок и выручку каждого продавца*/
 select
-    emp.first_name || ' ' || emp.last_name as name,
+    emp.first_name || ' ' || emp.last_name as seller,
     count(sal.sales_id) as operations,
     floor(sum(sal.quantity * pr.price)) as income
 from sales as sal
@@ -46,9 +46,9 @@ order by average_income;
    /*выручка каждого продавца по дням недели*/
 with group_weekday as (
     select
-        emp.first_name || ' ' || emp.last_name as name,
+        emp.first_name || ' ' || emp.last_name as seller,
         --приводим дату в формат названия дня недели
-        to_char(sal.sale_date, 'day') as weekday,
+        to_char(sal.sale_date, 'day') as day_of_week,
         --приводим дату в формат порядкового номера дня недели
         to_char(sal.sale_date, 'id') as number_weekday,
         sum(sal.quantity * pr.price) as income
@@ -58,16 +58,16 @@ with group_weekday as (
     left join employees as emp
         on sal.sales_person_id = emp.employee_id
     group by emp.first_name, emp.last_name, sal.sale_date
-    order by to_char(sal.sale_date, 'ID'), name
+    order by to_char(sal.sale_date, 'ID'), seller
 )
 
 select
-    name,
-    weekday,
+    seller,
+    day_of_week,
     floor(sum(income)) as income
 from group_weekday
-group by name, weekday, number_weekday
-order by number_weekday, name;
+group by seller, day_of_week, number_weekday
+order by number_weekday, seller;
 
 
 /*Количество покупателей по возрастным группам*/
@@ -85,19 +85,18 @@ with category_age as (
 select
     age_category,
     --считаем количество по каждой созданной возрастной группе
-    count(customer_id) as count
+    count(customer_id) as age_count
 
 from category_age
 group by age_category
 order by age_category;
 
 
-
 /*Количество покупателей и выручки, по месяцам*/
 with income as (
     select
         sal.customer_id--преобразуем дату в нужный фомат
-        , to_char(sal.sale_date, 'yyyy-mm') as date
+        , to_char(sal.sale_date, 'yyyy-mm') as selling_month
         , (sal.quantity * pr.price) as income--считаем выручку за кажую покупку
     from sales as sal
     left join products as pr
@@ -105,12 +104,12 @@ with income as (
 )
 
 select
-    date
+    selling_month
     --количество уникальных покупателей
     , count(distinct customer_id) as total_customers
     , floor(sum(income)) as income--сумируем выручку
 from income
-group by date;
+group by selling_month;
 
 
 
