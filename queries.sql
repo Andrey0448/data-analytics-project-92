@@ -1,6 +1,6 @@
-/*считает общее количество покупателей из таблицы customers*/
-select count(customer_id) AS customers_count
-FROM customers;
+/*считает общее количество покупателей*/
+select count(customer_id) as customers_count
+from customers;
 
 
 /*Запрос считает количество сделок и выручку каждого продавца*/
@@ -18,8 +18,7 @@ order by income desc
 limit 10;
 
 
-/*Чья средняя выручка из продавцов ниже средней выручки всех продавцов*/
-   
+/*Чья средняя выручка из продавцов ниже средней выручки всех продавцов*/   
 with average_dep_income as (
     select avg(sal.quantity * pr.price) as average_dep_income
     --ищем среднюю выручку за сделку всех продавцов
@@ -43,7 +42,7 @@ having avg(sal.quantity * pr.price) < dep.average_dep_income
 order by average_income;
 
 
-   /*выручка каждого продавца по дням недели*/
+/*выручка каждого продавца по дням недели*/
 with group_weekday as (
     select
         emp.first_name || ' ' || emp.last_name as seller,
@@ -96,8 +95,8 @@ order by age_category;
 with income as (
     select
         sal.customer_id--преобразуем дату в нужный фомат
-        , to_char(sal.sale_date, 'yyyy-mm') as selling_month
-        , (sal.quantity * pr.price) as income--считаем выручку за кажую покупку
+        , to_char(sal.sale_date, 'yyyy-mm') as selling_month-- noqa: LT04
+        , (sal.quantity * pr.price) as income
     from sales as sal
     left join products as pr
         on sal.product_id = pr.product_id
