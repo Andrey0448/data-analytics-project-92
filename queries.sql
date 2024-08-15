@@ -18,7 +18,7 @@ order by income desc
 limit 10;
 
 
-/*Чья средняя выручка из продавцов ниже средней выручки всех продавцов*/
+/*Чья средняя выручка из продавцов ниже средней выручки всех продавцов*/jdksjkda
 with average_dep_income as (
     select avg(sal.quantity * pr.price) as average_dep_income
     --ищем среднюю выручку за сделку всех продавцов
